@@ -181,6 +181,16 @@ export function main({
     }
   }
 
+  // We are take everything after "yarn workspace <package>" and use them as endArgs
+  if (command === commands.workspace || command === commands.exec) {
+    if (endArgs.length === 0) {
+      endArgs = ['--', ...args.slice(1)];
+      args = args.slice(0, 2);
+    } else {
+      warnAboutRunDashDash = true;
+    }
+  }
+
   args = [...preCommandArgs, ...args];
 
   command.setFlags(commander);
