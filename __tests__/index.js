@@ -263,10 +263,38 @@ test.concurrent('should run help of custom-script if --help is after script', as
   expect(JSON.parse(stdout.join('\n'))).toContain('--help');
 });
 
+test.concurrent('should run help of custom-script if --help is after workspace script', async () => {
+  const stdout = await execCommand(
+    'workspace',
+    ['test_run_custom_script', '--silent', 'custom-script', '--help'],
+    'run-custom-script-with-arguments-in-workspace',
+    true,
+  );
+  const subLastLines = JSON.parse(stdout[0] || '');
+  expect(subLastLines[1]).toMatch(/packages\/pkg1\/echo\.js?$/);
+  expect(subLastLines[2]).toEqual('--help');
+  expect(subLastLines.length).toEqual(3);
+});
+
 test.concurrent('should run bin command', async () => {
   const stdout = await execCommand('bin', [], '', true);
   expect(stdout[0]).toMatch(/[\\\/]node_modules[\\\/]\.bin\n?$/);
   expect(stdout.length).toEqual(1);
+});
+
+test.concurrent('should run exec command', async () => {
+  const stdout = await execCommand('exec', ['util'], 'exec', true);
+  const subLastLines = JSON.parse(stdout[stdout.length - 2] || '');
+  expect(subLastLines[1]).toMatch(/\/node_modules\/\.bin\/util?$/);
+  expect(subLastLines.length).toEqual(2);
+});
+
+test.concurrent('should run exec command if --help is after', async () => {
+  const stdout = await execCommand('exec', ['util', '--help'], 'exec', true);
+  const subLastLines = JSON.parse(stdout[stdout.length - 2] || '');
+  expect(subLastLines[1]).toMatch(/\/node_modules\/\.bin\/util?$/);
+  expect(subLastLines[2]).toEqual('--help');
+  expect(subLastLines.length).toEqual(3);
 });
 
 test.concurrent('should throws missing command for not camelised command', async () => {
